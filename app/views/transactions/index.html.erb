@@ -1,0 +1,25 @@
+<h1>Transactions</h1>
+<p><%=  %></p>
+<table>
+  <thead>
+    <tr>
+      <th>Balance</th>
+      <th>From wallet</th>
+      <th>To wallet</th>
+      <th>Updated At</th>
+      <th>Created At</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @transactions.each do |transaction| %>
+      <tr>
+        <td><%= transaction.balance %></td>
+        <td><%= transaction.from_wallet_id %></td>
+        <td><%= transaction.to_wallet_id %></td>
+        <td><%= transaction.updated_at %></td>
+        <td><%= transaction.created_at %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
