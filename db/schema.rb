@@ -24,6 +24,13 @@ ActiveRecord::Schema.define(version: 2019_04_08_105056) do
     t.index ["user_id"], name: "index_bank_accounts_on_user_id"
   end
 
+  create_table "countries", force: :cascade do |t|
+    t.string "iso"
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "currencies", force: :cascade do |t|
     t.string "name"
     t.string "abbreviation"
@@ -47,6 +54,8 @@ ActiveRecord::Schema.define(version: 2019_04_08_105056) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "country_id"
+    t.index ["country_id"], name: "index_users_on_country_id"
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
@@ -57,6 +66,7 @@ ActiveRecord::Schema.define(version: 2019_04_08_105056) do
     t.bigint "currency_id"
     t.bigint "bank_account_id"
     t.index ["bank_account_id"], name: "index_wallets_on_bank_account_id"
+    t.boolean "active", default: false
     t.index ["currency_id"], name: "index_wallets_on_currency_id"
   end
 
@@ -64,5 +74,6 @@ ActiveRecord::Schema.define(version: 2019_04_08_105056) do
   add_foreign_key "bank_accounts", "users"
   add_foreign_key "transactions", "wallets"
   add_foreign_key "wallets", "bank_accounts"
+  add_foreign_key "users", "countries"
   add_foreign_key "wallets", "currencies"
 end
