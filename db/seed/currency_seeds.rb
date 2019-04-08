@@ -1,3 +1,4 @@
+Currency.delete_all
 Country.all.each do |country|
   country = ISO3166::Country.new(country.iso)
   if country

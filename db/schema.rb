@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_04_08_105056) do
+ActiveRecord::Schema.define(version: 2019_04_08_111346) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -64,16 +64,16 @@ ActiveRecord::Schema.define(version: 2019_04_08_105056) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "currency_id"
+    t.boolean "active", default: false
     t.bigint "bank_account_id"
     t.index ["bank_account_id"], name: "index_wallets_on_bank_account_id"
-    t.boolean "active", default: false
     t.index ["currency_id"], name: "index_wallets_on_currency_id"
   end
 
   add_foreign_key "bank_accounts", "currencies"
   add_foreign_key "bank_accounts", "users"
   add_foreign_key "transactions", "wallets"
-  add_foreign_key "wallets", "bank_accounts"
   add_foreign_key "users", "countries"
+  add_foreign_key "wallets", "bank_accounts"
   add_foreign_key "wallets", "currencies"
 end
