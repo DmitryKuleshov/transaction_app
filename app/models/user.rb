@@ -1,6 +1,6 @@
 class User < ApplicationRecord
   belongs_to :country
-  has_one :bank_account
+  has_one :bank_account, dependent: :destroy
 
   after_save :create_banck_account
 
@@ -9,7 +9,8 @@ class User < ApplicationRecord
 
   def create_banck_account
     currency_code = ISO3166::Country.new(self.country.iso).currency_code
-    currency_id = Currency.find_by_abbreviation(currency_code)
+    currency_id = Currency.find_by_abbreviation(currency_code).id
+    
     BankAccount.create(user_id: self.id, currency_id: currency_id)
     create_wallet(currency_code, currency_id)
   end
