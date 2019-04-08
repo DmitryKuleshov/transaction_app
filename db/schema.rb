@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_04_08_111346) do
+ActiveRecord::Schema.define(version: 2019_04_08_113623) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -44,6 +44,7 @@ ActiveRecord::Schema.define(version: 2019_04_08_111346) do
     t.bigint "wallet_id"
     t.integer "from_wallet_id"
     t.integer "to_wallet_id"
+    t.float "balance"
     t.index ["wallet_id"], name: "index_transactions_on_wallet_id"
   end
 
@@ -66,6 +67,7 @@ ActiveRecord::Schema.define(version: 2019_04_08_111346) do
     t.bigint "currency_id"
     t.boolean "active", default: false
     t.bigint "bank_account_id"
+    t.boolean "active", default: false
     t.index ["bank_account_id"], name: "index_wallets_on_bank_account_id"
     t.index ["currency_id"], name: "index_wallets_on_currency_id"
   end
