@@ -10,14 +10,33 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+<<<<<<< HEAD
 ActiveRecord::Schema.define(version: 2019_04_08_094422) do
+=======
+ActiveRecord::Schema.define(version: 2019_04_08_095833) do
+>>>>>>> 99de748b0760bdb38747541bade0bda547b32c6d
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
+<<<<<<< HEAD
   create_table "countries", force: :cascade do |t|
     t.string "iso"
     t.string "name"
+=======
+  create_table "bank_accounts", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.bigint "currency_id"
+    t.index ["currency_id"], name: "index_bank_accounts_on_currency_id"
+    t.index ["user_id"], name: "index_bank_accounts_on_user_id"
+  end
+
+  create_table "currencies", force: :cascade do |t|
+    t.string "name"
+    t.string "abbreviation"
+>>>>>>> 99de748b0760bdb38747541bade0bda547b32c6d
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -34,5 +53,19 @@ ActiveRecord::Schema.define(version: 2019_04_08_094422) do
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
+<<<<<<< HEAD
   add_foreign_key "users", "countries"
+=======
+  create_table "wallets", force: :cascade do |t|
+    t.float "balance"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "currency_id"
+    t.index ["currency_id"], name: "index_wallets_on_currency_id"
+  end
+
+  add_foreign_key "bank_accounts", "currencies"
+  add_foreign_key "bank_accounts", "users"
+  add_foreign_key "wallets", "currencies"
+>>>>>>> 99de748b0760bdb38747541bade0bda547b32c6d
 end
