@@ -1,0 +1,58 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Balance:</strong>
+  <%= @transaction.balance %>
+</p>
+
+<p>
+  <strong>From wallet:</strong>
+  <%= @transaction.from_wallet_id %>
+</p>
+
+<p>
+  <strong>To wallet:</strong>
+  <%= @transaction.to_wallet_id %>
+</p>
+
+<p>
+  <strong>Created At:</strong>
+  <%= @transaction.created_at.to_formatted_s(:long) %>
+</p>
+
+<p>
+  <strong>Updated At:</strong>
+  <%= @transaction.updated_at.to_formatted_s(:long) %>
+</p>
+
+<% if @subtransactions && !@subtransactions.empty? %>
+<h1>Subtransactions</h1>
+<table>
+  <thead>
+    <tr>
+      <th>Balance</th>
+      <th>From wallet</th>
+      <th>To wallet</th>
+      <th>Updated At</th>
+      <th>Created At</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @subtransactions.each do |subtransaction| %>
+      <tr>
+        <td><%= subtransaction.balance %></td>
+        <td><%= subtransaction.from_wallet_id %></td>
+        <td><%= subtransaction.to_wallet_id %></td>
+        <td><%= subtransaction.updated_at.to_formatted_s(:long) %></td>
+        <td><%= subtransaction.created_at.to_formatted_s(:long) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+<% end %>
+
+<%= link_to 'New Transaction', new_transaction_path %> |
+<%= link_to 'Back', transactions_path %> |
+
+<%= link_to 'logout', destroy_user_session_path, method: :delete %>

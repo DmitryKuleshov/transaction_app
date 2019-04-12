@@ -1,0 +1,28 @@
+<h1>New transaction</h1>
+<%= form_tag new_transaction_path, method: "get", id: "filter_users", class: "filter_users" do %>
+  <%= label_tag "Users" %>
+  <%= select_tag "filters[user_id]", options_from_collection_for_select(User.all, "id", "email", @user_id ), { :include_blank => true, :onclick => "$('#filter_users').submit();"} %>
+<% end %>
+<% if @currencies %>
+  <%= form_with(model: @transaction, local: true) do |form| %>
+    <div class="field">
+      <%= form.label :currency %>
+      <%= form.select :currency_id, options_from_collection_for_select(@currencies, "id", "abbreviation") %>
+    </div>
+
+    <div class="field">
+      <%= form.label :value %>
+      <%= form.number_field :value %>
+    </div>
+
+    <%= current_user.email %>
+
+    <%= form.hidden_field :to_user_id, value: @user_id %>
+
+    <div class="actions">
+      <%= form.submit %>
+    </div>
+  <% end %>
+<% end %>
+<%= link_to 'Back', transactions_path %> |
+<%= link_to 'logout', destroy_user_session_path, method: :delete %>

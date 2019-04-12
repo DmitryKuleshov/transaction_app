@@ -8,7 +8,6 @@ class User < ApplicationRecord
          :rememberable, :validatable
 
   private
-
   def create_banck_account
     currency_code = ISO3166::Country.new(self.country.iso).currency_code
     currency_id = Currency.find_by_abbreviation(currency_code).id
@@ -30,5 +29,6 @@ class User < ApplicationRecord
     balance = Money.us_dollar(1000).exchange_to(currency_code)
 
     Transaction.create(to_wallet_id: wallet.id, balance: balance)
+    wallet.update(balance: balance)
   end
 end
