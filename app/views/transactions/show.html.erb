@@ -1,0 +1,75 @@
+<div class="container pt-4">
+  <div class="col-md-12">
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="d-flex flex-row justify-content-between">
+          <div class="d-flex flex-row align-items-center">
+            <%= link_to(transactions_path) do %>
+              <button class="btn btn-light btn-sm">
+                <i class="fa fa-angle-left fa-2x"></i>
+              </button>
+            <% end %>
+            <h1 class="pl-2 m-0">
+              <%= @transaction.created_at.to_formatted_s(:long) %>
+              <%= @transaction.balance %>
+            </h1>
+          </div>
+          <%= link_to 'New Transaction', new_transaction_path, class: "btn btn-primary" %>
+        </div>
+
+        <span>
+          <strong>ID: </strong>
+          <%= @transaction.id %>
+        </span>
+
+        <span>
+          <strong>From wallet: </strong>
+          <%= @transaction.from_wallet_id %>
+        </span>
+
+        <span>
+          <strong>To wallet: </strong>
+          <%= @transaction.to_wallet_id %>
+        </span>
+
+        <span>
+          <strong>Updated At: </strong>
+          <%= @transaction.updated_at.to_formatted_s(:long) %>
+        </span>
+      </div>
+    </div>
+    <% if @subtransactions && !@subtransactions.empty? %>
+      <div class="card">
+        <div class="card-body">
+          <hr class="my-3">
+          <h1>Subtransactions</h1>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">From</th>
+                <th scope="col">Value</th>
+                <th scope="col">Carency</th>
+                <th scope="col">Created At</th>
+                <th scope="col">Updated At</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <% @subtransactions.each do |subtransaction| %>
+                <tr>
+                  <th scope="row"><%= subtransaction.id %></th>
+                  <td><%= subtransaction.fromWallet.bank_account.user.name %></td>
+                  <td><%= subtransaction.balance %></td>
+                  <td><%= subtransaction.fromWallet.currency.abbreviation %></td>
+                  <td><%= subtransaction.created_at.to_formatted_s(:long) %></td>
+                  <td><%= subtransaction.updated_at.to_formatted_s(:long) %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

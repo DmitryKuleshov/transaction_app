@@ -13,4 +13,8 @@
 //= require rails-ujs
 //= require activestorage
 //= require turbolinks
+//= require jquery
+//= require jquery_ujs
+//= require lib/js/jquery-3.3.1.min.js
+//= require_tree ./lib
 //= require_tree .

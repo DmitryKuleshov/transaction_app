@@ -1,0 +1,40 @@
+<div class="container pt-4">
+  <div class="d-flex justify-content-center">
+    <div class="card w-75">
+      <div class="card-body">
+        <div class="d-flex flex-row align-items-center">
+          <%= link_to(transactions_path) do %>
+            <button class="btn btn-light btn-sm">
+              <i class="fa fa-angle-left fa-2x"></i>
+            </button>
+          <% end %>
+          <h1 class="pl-2 m-0">New Transaction</h1>
+          <%= current_user.email %>
+        </div>
+        <hr class="my-3">
+        <div class="d-flex flex-row justify-content-between">
+          <%= form_tag new_transaction_path, method: "get", id: "filter_users", class: "filter_users" do %>
+            <%= select_tag "filters[user_id]", options_from_collection_for_select(User.all, "id", "email", @user_id ), { :prompt => 'Select Person', onclick: "$('#filter_users').submit();", class: "browser-default custom-select"} %>
+          <% end %>
+          <% if @currencies %>
+            <%= form_with(model: @transaction, local: true) do |form| %>
+              <div class="field mb-2">
+                <%= form.select :currency_id, options_from_collection_for_select(@currencies, "id", "abbreviation"), {:prompt => 'Select Currency'}, { class: "browser-default custom-select"} %>
+              </div>
+
+              <%= form.number_field :value, class: "form-control", placeholder: "Value" %>
+
+
+              <%= form.hidden_field :to_user_id, value: @user_id %>
+
+              <button class="btn btn-primary">
+                Send Money
+                <%= form.submit class: "d-none" %>
+              </button>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
