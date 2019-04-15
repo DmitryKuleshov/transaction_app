@@ -3,8 +3,8 @@ class TransactionsController < ApplicationController
 
   def index
     wallet_ids = current_user.bank_account.wallets.pluck(:id)
-    @transactions = Transaction.where("to_wallet_id = ? OR from_wallet_id = ?", wallet_ids, wallet_ids)
-    @balance = @transactions.sum(&:balance)
+    @transactions = Transaction.where("to_wallet_id IN (?) OR from_wallet_id IN (?)", wallet_ids, wallet_ids)
+    @balance = 10
   end
 
   def new
@@ -17,7 +17,12 @@ class TransactionsController < ApplicationController
   end
 
   def create
-    @to_wallet_id = User.find(params[:transaction][:to_user_id]).bank_account.wallets.where(currency_id: params[:transaction][:currency_id]).first.id
+    result = NewTransactionsService.new(params, current_user).call
+
+    @transaction = result[0]
+    @subtransactions = result[1]
+    @wallets = result[2]
+    @to_wallet = result[3]
 
     respond_to do |format|
       if start_transaction
@@ -49,52 +54,27 @@ class TransactionsController < ApplicationController
     @subtransactions = Transaction.where(parent_id: @transaction.id)
   end
 
-  #TODO
-  #1) remove transactions logic to service
-  #2) sort wallets before transactions
-
   def start_transaction
-    #hardcoded rate
-    Money.add_rate("CAD", "EUR", 0.8)
-
-    value = params[:transaction][:value].to_i
-    @wallets = current_user.bank_account.wallets
-    balance = Transaction.where("to_wallet_id = ? OR from_wallet_id = ?", @wallets.ids, @wallets.ids).sum(&:balance)
-
-    if balance > value
-      ActiveRecord::Base.transaction do
-        iterator = 0
-        while value > 0 do
-          result = value - @wallets[iterator].balance.to_i
-          if result > 0
-            if iterator == 0
-              @transaction = Transaction.create(to_wallet_id: @to_wallet_id, balance: value)
-            end
-            @wallets[iterator].balance = 0
-            value = result
-            Transaction.create(from_wallet_id: @wallets[iterator].id, balance: @wallets[iterator].balance, parent_id: @transaction)
-          else
-            from = @wallets[iterator].currency.abbreviation
-            to = Currency.find(params[:transaction][:currency_id]).abbreviation
-            @wallets[iterator].balance = result.abs / get_rate(from, to)
-            @transaction = Transaction.create(to_wallet_id: @to_wallet_id, from_wallet_id: @wallets[iterator].id, balance: value)
-            value = 0
-          end
-          @wallets[iterator].save!
-          iterator = iterator + 1
-        end
+    ActiveRecord::Base.transaction do
+      if @transaction
+        @transaction.save!
+      else
+        return false
       end
-      return true
-    else
-      return false
+      if !@subtransactions.empty?
+        @subtransactions.each {|subtransaction| subtransaction.save! }
+      end
+      if @wallets
+        @wallets.each {|wallet| wallet.save! }
+      else
+        return false
+      end
+
+      if @to_wallet
+        @to_wallet.save!
+      else
+        return false
+      end
     end
-  end
-
-  def wallets_sort
-    @wallets = @wallets.sort_by {|wallet| convert(params[:transaction][:currency_id], wallet.currency_id, wallet.balance)}
-  end
-
-  def get_rate(from, to)
-    Money.new(1, from).exchange_to(to).fractional
   end
 end
