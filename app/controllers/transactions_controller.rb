@@ -3,50 +3,43 @@ class TransactionsController < ApplicationController
 
   def index
     wallet_ids = current_user.bank_account.wallets.pluck(:id)
-    @transactions = Transaction.where("to_wallet_id IN (?) OR from_wallet_id IN (?)", wallet_ids, wallet_ids)
-    @balance = 10
+    @transactions = Transaction.where(to_wallet_id: wallet_ids).or(Transaction.where(from_wallet_id: wallet_ids))
   end
 
   def new
     if params[:filters]
       @user_id = params[:filters][:user_id]
-      currency_ids = User.find(@user_id).bank_account.wallets.pluck(:currency_id).uniq
-      @currencies = Currency.find(currency_ids)
+      @currencies = User.find(@user_id).bank_account.wallets.collect(&:currency).uniq
       @transaction = Transaction.new
     end
   end
 
   def create
-    result = NewTransactionsService.new(params, current_user).call
+    @result = NewTransactionsService.new(transaction_params, current_user).call
 
-    @transaction = result[0]
-    @subtransactions = result[1]
-    @wallets = result[2]
-    @to_wallet = result[3]
-
-    respond_to do |format|
-      if start_transaction
-        format.html { redirect_to transaction_path(@transaction.id), notice: 'Transaction was successfully created.' }
-      else
-        format.html { render :new }
-      end
-    end
-
+    render_create
   end
 
   def show
-    set_transaction
+    set_transaction(params[:id])
+    p @transaction.to_wallet_id
 
-    if !@transaction.from_wallet_id
-      set_subtransactions
-    elsif !@transaction.to_wallet_id
-      set_transaction(@transaction.parent_id)
-      set_subtransactions
-    end
+    set_transaction(@transaction.parent_id) if !@transaction.to_wallet_id
+
+    set_subtransactions
   end
 
   private
-  def set_transaction(id = params[:id])
+
+  def render_create
+    if !@result[:error] && start_transaction
+      redirect_to transaction_path(@result[:transaction]), notice: 'Transaction was successfully created.'
+    else
+      render :new
+    end
+  end
+
+  def set_transaction(id)
     @transaction = Transaction.find(id)
   end
 
@@ -55,26 +48,23 @@ class TransactionsController < ApplicationController
   end
 
   def start_transaction
+    #add exception method
     ActiveRecord::Base.transaction do
-      if @transaction
-        @transaction.save!
+      if @result[:transaction]
       else
         return false
       end
-      if !@subtransactions.empty?
-        @subtransactions.each {|subtransaction| subtransaction.save! }
+      @result[:transaction].save!
+      @result[:subtransactions].each do |subtransaction|
+        subtransaction.parent_id = @result[:transaction].id
+        subtransaction.save!
       end
-      if @wallets
-        @wallets.each {|wallet| wallet.save! }
-      else
-        return false
-      end
-
-      if @to_wallet
-        @to_wallet.save!
-      else
-        return false
-      end
+      @result[:wallets].each &:save!
+      @result[:to_wallet].save!
     end
+  end
+
+  def transaction_params
+    params.require(:transaction).permit(:to_user_id, :value, :currency_id)
   end
 end
